@@ -29,7 +29,7 @@ The Intelligent Dasymetric Toolbox was developed for ArcGIS Pro. The Spatial Ana
 
 Use of this tool may require increasing the maximum number of unique values the 'Combine Tool' can produce.
 
-You can increase this number by changing a setting in  ArcGIS Pro. On the  **Project**  tab, select  **Options**  and select the  **Raster and Imagery**  choice. In the dialog box, select the  **Raster Dataset**  choice and enter an appropriate value for the  **Maximum number of unique values to display**.
+You can increase this number by changing a setting in  ArcGIS Pro. On the  **Project**  tab, select  **Options**  and select the  **Raster and Imagery**  choice. In the dialog box, select the  **Raster Dataset**  choice and enter an appropriate value for the  **Maximum number of unique values to display**.  
 [https://pro.arcgis.com/en/pro-app/tool-reference/spatial-analyst/combine.htm](https://pro.arcgis.com/en/pro-app/tool-reference/spatial-analyst/combine.htm)
 
 #### Uninhabited areas
@@ -61,7 +61,8 @@ The preset densities for the following land cover classes from the 2011 National
 
 
 ### Example
-[Example data](data) are provided.
+[Example data](data) are provided.  
+
 |Parameter|  Value|
 |--|--|
 |Population Features |2010_blocks_DE.shp|
