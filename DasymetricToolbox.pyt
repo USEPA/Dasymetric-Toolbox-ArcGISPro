@@ -589,22 +589,18 @@ class DasymetricPopulationMapping(object):
                 census population. Also, remove dasymetric units associated 
                 with polygons where the entire populated area is covered by 
                 sampled/preset ancillary classes.
+                Update - set clip(0) for POP_DIFF i.e., Eq. 3
                 '''
                 #Set mask
                 diff_mask = (
-                        dasy_df[ancCatName].isin(unSampledList)
-                        ) & (
-                                dasy_df["POP_DIFF"] > 0
-                                ) & (
-                                        dasy_df['REM_AREApoly'] != 0
-                                        )
-                dasy_df.loc[diff_mask, "POP_EST"] = dasy_df.loc[
-                        diff_mask, "POP_DIFF"
-                        ] * dasy_df.loc[
-                                diff_mask, "REM_AREA"
-                                ] / dasy_df.loc[
-                                        diff_mask, "REM_AREApoly"
-                                        ]
+                        (dasy_df[ancCatName].isin(unSampledList)) &
+                        (dasy_df['REM_AREApoly'] != 0)
+                        )
+                                        
+                dasy_df.loc[diff_mask, "POP_EST"] = (
+                    dasy_df.loc[diff_mask, "POP_DIFF"].clip(0) *
+                    dasy_df.loc[diff_mask, "REM_AREA"] /
+                    dasy_df.loc[diff_mask, "REM_AREApoly"])
                 
                 '''
                 Sum total initial population estimates and remaining area for 
@@ -657,6 +653,21 @@ class DasymetricPopulationMapping(object):
             to the total population estimated for the polygon associated with 
             the dasymetric unit to redistribute the census population.
             '''
+
+            '''
+	    if the sum of population densities within the source unit is equal to 0
+	    set the POP_EST for those to 1 (i.e., area weighting (Eq. 5))
+	    '''
+            idx = (dasy_df
+		    .groupby(popIDField)
+                    .filter(
+                    lambda s: s['POP_EST'].sum() == 0 and
+                    s['POP_COUNT'].sum() > 0
+		    ).index
+                )
+
+            dasy_df.loc[idx, 'POP_EST'] = 1
+			
             #Sum population estimates by polygon.
             popEstsum = dasy_df.groupby(popIDField)["POP_EST"].sum()
             
