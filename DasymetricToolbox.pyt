@@ -57,6 +57,24 @@ class Toolbox(object):
         self.alias = "IDM"
         # List of tool classes associated with this toolbox
         self.tools = [DasymetricPopulationMapping]
+        
+def correct_dtypes(df):
+    ## modified from: https://gis.stackexchange.com/questions/286349/numpyarraytotable-runtimeerror-the-value-type-is-incompatible-with-the-field
+    typLim={'i2': (-32768,32767),  # Short field type
+            'i4':(-2147483648,2147483647), # Long field type
+            'f4':(-3.4E38,1.2E38)}         # Float field type
+    
+    ds_range_within_limits_of = lambda t,ds: typLim[t][0]<=ds.min() and ds.max()<=typLim[t][1]    
+    
+    intCols = df.select_dtypes(include=int).columns
+    for c in intCols:
+        df[c] = df[c].astype('i2' if ds_range_within_limits_of('i2',df[c]) else \
+                          'i4' if ds_range_within_limits_of('i4',df[c]) else 'f8')
+    floatCols = df.select_dtypes(include=float).columns
+    for c in floatCols:
+        df[c] = df[c].astype('f4' if ds_range_within_limits_of('f4',df[c]) else 'f8')  # Double Field Type
+        
+    return df
 
 # Tool implementation code
 
@@ -173,8 +191,8 @@ class DasymetricPopulationMapping(object):
         try:
             if arcpy.CheckExtension("spatial") != "Available":
                 raise Exception
-            if arcpy.CheckExtension("3D") != "Available":
-                raise Exception
+            #if arcpy.CheckExtension("3D") != "Available":
+            #    raise Exception
         except Exception:
             return False  # tool cannot be executed
         return True  # tool can be executed
@@ -193,7 +211,7 @@ class DasymetricPopulationMapping(object):
         try:
             AddPrintMessage("Beginning the population polygon to raster conversion...",0) 
             #Check out extensions
-            arcpy.CheckOutExtension("3D")
+            #arcpy.CheckOutExtension("3D")
             arcpy.CheckOutExtension("spatial")
             
             # Variables from parameters
@@ -686,12 +704,14 @@ class DasymetricPopulationMapping(object):
             dasy_df = dasy_df.fillna(0)
             #Get the OID field from the raster
             oid = arcpy.Describe(dasyRaster).OIDFieldName
+            dasy_df = correct_dtypes(dasy_df)
             arcpy.da.NumPyArrayToTable(
                     dasy_df.drop(columns = oid).to_records(index = False), 
                     dasyWorkTable
                     )
              
             #export pop_df
+            pop_df = correct_dtypes(pop_df)
             arcpy.da.NumPyArrayToTable(
                     pop_df.fillna(0).to_records(index = False), popWorkTable
                     )
@@ -751,7 +771,7 @@ class DasymetricPopulationMapping(object):
             arcpy.DefineProjection_management(densRaster, outCoordSys)
             '''   
             #Check in extensions
-            arcpy.CheckInExtension("3D")
+            #arcpy.CheckInExtension("3D")
             arcpy.CheckInExtension("spatial")
             
         # Geoprocessing Errors will be caught here
