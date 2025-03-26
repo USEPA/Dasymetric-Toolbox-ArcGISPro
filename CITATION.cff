@@ -1,0 +1,9 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: U.S. Environmental Protection Agency
+  given-names: Office of Research and Development
+title: Intelligent Dasymetric Toolbox for ArcGIS Pro
+version: v1.0.1
+date-released: 2025-03-26
+doi: 10.5281/zenodo.6645815
